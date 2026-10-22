@@ -1,0 +1,7 @@
+{
+    "sales": {
+  "salesQueryPaginator": "SELECT r.datenew AS Fecha, t.ticketid AS Num_Ticket, p.name AS Nombre_Producto, tl.units AS Cantidad, tl.soldprice AS Precio_Vendido, (tl.units * tl.soldprice) AS Total_Linea, pay.money AS Monto_Pago, t.status AS Estado_Ticket, p.id FROM tickets t JOIN receipts r ON t.id = r.id JOIN ticketlines tl ON t.id = tl.ticket JOIN products p ON tl.product = p.id LEFT JOIN payments pay ON t.id = pay.receipt ORDER BY r.datenew DESC LIMIT ? OFFSET ?",
+  "products":"SELECT REFERENCE, CODE, p.NAME productName, pricebuy,  c.`name`  as categoria FROM products p JOIN categories c ON c.id = p.category"
+  
+}
+}
