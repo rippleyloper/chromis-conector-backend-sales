@@ -1,20 +1,21 @@
 import { Request, Response } from 'express';
-import { fetchProductsList } from '../services/products.service';
+import { fetchProductById, fetchProductsList } from '../services/products.service';
+import { pagination } from '../utils/request';
+import { respondError } from '../utils/http';
 
-export const getProductList = async (req: Request, res: Response) => {
+export async function getProductList(req: Request, res: Response) {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const { page, limit } = pagination(req);
+    res.json(await fetchProductsList(page, limit,
+      typeof req.query.search === 'string' ? req.query.search : undefined,
+      typeof req.query.category === 'string' ? req.query.category : undefined));
+  } catch (error) { respondError(res, error); }
+}
 
-    // Llama al servicio encargado de la lógica y los datos
-    const products = await fetchProductsList(page, limit);
-
-    res.json({
-      page,
-      limit,
-      data: products
-    });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Error interno del servidor' });
-  }
-};
+export async function getProduct(req: Request, res: Response) {
+  try {
+    const item = await fetchProductById(req.params.id);
+    if (!item) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
+    res.json(item);
+  } catch (error) { respondError(res, error); }
+}
