@@ -1,9 +1,7 @@
 import { Router } from 'express';
-import { getProductList } from '../controllers/product.controller'; // Ajusta la ruta de importación
-
+import { getProductList, getProduct } from '../controllers/product.controller';
 const router = Router();
-
-// 👈 Aquí lo llamas en el .get del router
+router.get('/', getProductList);
 router.get('/list', getProductList);
-
+router.get('/:id', getProduct);
 export default router;
