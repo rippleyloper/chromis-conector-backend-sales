@@ -1,20 +1,25 @@
 import { Request, Response } from 'express';
-import { fetchProductsService } from '../services/sales.service';
+import { fetchSaleById, fetchSales, fetchSalesSummary } from '../services/sales.service';
+import { pagination, dateRange } from '../utils/request';
+import { respondError } from '../utils/http';
 
-export const getProducts = async (req: Request, res: Response) => {
+export async function getSales(req: Request, res: Response) {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const { page, limit } = pagination(req);
+    const { from, to } = dateRange(req);
+    res.json(await fetchSales(page, limit, from, to));
+  } catch (error) { respondError(res, error); }
+}
 
-    // Llama al servicio encargado de la lógica y los datos
-    const products = await fetchProductsService(page, limit);
+export async function getSale(req: Request, res: Response) {
+  try {
+    const sale = await fetchSaleById(req.params.id);
+    if (!sale) { res.status(404).json({ error: 'Venta no encontrada' }); return; }
+    res.json(sale);
+  } catch (error) { respondError(res, error); }
+}
 
-    res.json({
-      page,
-      limit,
-      data: products
-    });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Error interno del servidor' });
-  }
-};
+export async function getSalesSummary(req: Request, res: Response) {
+  try { const { from, to } = dateRange(req); res.json(await fetchSalesSummary(from, to)); }
+  catch (error) { respondError(res, error); }
+}
